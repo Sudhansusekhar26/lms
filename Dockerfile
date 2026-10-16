@@ -29,7 +29,7 @@ USER lmsuser
 EXPOSE 8081
 
 # JVM flags for containers
-ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -Djava.net.preferIPv4Stack=true"
 
 # Run the Spring Boot executable WAR
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.war"]
