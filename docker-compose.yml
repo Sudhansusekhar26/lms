@@ -1,0 +1,49 @@
+﻿version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: lms-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: lms
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lms-network
+
+  lms-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lms-application
+    restart: always
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=lms
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - PORT=8081
+    networks:
+      - lms-network
+
+volumes:
+  mysql_data:
+
+networks:
+  lms-network:
+    driver: bridge
